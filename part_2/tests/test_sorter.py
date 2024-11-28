@@ -1,8 +1,12 @@
 # tests/test_sorter.py
-
+import sys
 import os
 import shutil
+from pathlib import Path
 import pytest
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from sorter import organize_files
 from errors import DirectoryNotFoundError, PermissionDeniedError
 
