@@ -1,10 +1,11 @@
 import json
+from geopy.distance import geodesic
 
 
 def load_json(file_path):
     """
     Load JSON data from a file.
-    
+    pi
     Args:
         file_path (str): Path to the JSON file.
     
@@ -20,3 +21,17 @@ def load_json(file_path):
     except json.JSONDecodeError:
         print(f"Error: Failed to decode JSON in the file '{file_path}'.")
         return {}
+
+
+def calculate_distance(coord1, coord2):
+    """
+    Calculate the geographical distance between two coordinates.
+    
+    Args:
+        coord1 (tuple): Tuple of (latitude, longitude) for the first location.
+        coord2 (tuple): Tuple of (latitude, longitude) for the second location.
+    
+    Returns:
+        float: Distance in kilometers.
+    """
+    return geodesic(coord1, coord2).kilometers
