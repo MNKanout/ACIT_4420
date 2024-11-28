@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # Import the function to test
-from utils import load_json, calculate_distance
+from utils import load_json, calculate_distance, validate_coordinates
 
 # Test functions
 def test_load_json_valid_file(tmp_path):
@@ -105,3 +105,58 @@ def test_calculate_distance_invalid_coordinates():
     # Expect a ValueError from geopy
     with pytest.raises(ValueError):
         calculate_distance(coord1, coord2)
+
+
+def test_validate_coordinates_valid():
+    """
+    Test validate_coordinates with valid latitude and longitude.
+    """
+    valid_coords = [
+        (0, 0),           # Equator and Prime Meridian
+        (45, 90),         # North-East Quadrant
+        (-45, -90),       # South-West Quadrant
+        (90, 180),        # Maximum valid values
+        (-90, -180),      # Minimum valid values
+    ]
+    for coord in valid_coords:
+        # Should not raise an exception
+        validate_coordinates(coord)
+
+
+def test_validate_coordinates_invalid_latitude():
+    """
+    Test validate_coordinates with invalid latitude values.
+    """
+    invalid_latitudes = [
+        (91, 0),    # Latitude > 90
+        (-91, 0),   # Latitude < -90
+    ]
+    for coord in invalid_latitudes:
+        with pytest.raises(ValueError, match="Invalid latitude"):
+            validate_coordinates(coord)
+
+
+def test_validate_coordinates_invalid_longitude():
+    """
+    Test validate_coordinates with invalid longitude values.
+    """
+    invalid_longitudes = [
+        (0, 181),   # Longitude > 180
+        (0, -181),  # Longitude < -180
+    ]
+    for coord in invalid_longitudes:
+        with pytest.raises(ValueError, match="Invalid longitude"):
+            validate_coordinates(coord)
+
+
+def test_validate_coordinates_invalid_both():
+    """
+    Test validate_coordinates with both latitude and longitude invalid.
+    """
+    invalid_coords = [
+        (91, 181),   # Both latitude and longitude out of range
+        (-91, -181), # Both latitude and longitude out of range
+    ]
+    for coord in invalid_coords:
+        with pytest.raises(ValueError):
+            validate_coordinates(coord)
