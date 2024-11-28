@@ -34,4 +34,25 @@ def calculate_distance(coord1, coord2):
     Returns:
         float: Distance in kilometers.
     """
+    # Validate the coordinates before calculating
+    validate_coordinates(coord1)
+    validate_coordinates(coord2)
     return geodesic(coord1, coord2).kilometers
+
+
+
+def validate_coordinates(coord):
+    """
+    Validate that a coordinate tuple contains valid latitude and longitude.
+
+    Args:
+        coord (tuple): Tuple of (latitude, longitude).
+
+    Raises:
+        ValueError: If the latitude or longitude is out of range.
+    """
+    lat, lon = coord
+    if not (-90 <= lat <= 90):
+        raise ValueError(f"Invalid latitude: {lat}. Must be between -90 and 90.")
+    if not (-180 <= lon <= 180):
+        raise ValueError(f"Invalid longitude: {lon}. Must be between -180 and 180.")
