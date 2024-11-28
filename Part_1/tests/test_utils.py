@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # Import the function to test
-from utils import load_json
+from utils import load_json, calculate_distance
 
 # Test functions
 def test_load_json_valid_file(tmp_path):
@@ -50,10 +50,58 @@ def test_load_json_invalid_json(tmp_path):
     # Assert the function returns an empty dictionary
     assert result == {}
 
-# Main function to execute the tests
-if __name__ == "__main__":
-    # Run all tests
-    print("Running tests...")
+
+def test_calculate_distance_valid_coordinates():
+    """
+    Test calculate_distance with valid coordinates.
+    """
+    # Coordinates for Seoul and Incheon
+    coord1 = (37.5665, 126.9780)  # Seoul
+    coord2 = (37.4563, 126.7052)  # Incheon
     
-    # Using pytest's main to run tests programmatically
-    pytest.main(["-v", __file__])
+    # Calculate the distance
+    distance = calculate_distance(coord1, coord2)
+    
+    # Assert the result is within an expected range (around 27 km)
+    assert 25 <= distance <= 30
+
+
+def test_calculate_distance_same_coordinates():
+    """
+    Test calculate_distance when both coordinates are the same.
+    """
+    coord = (37.5665, 126.9780)  # Seoul
+    
+    # Calculate the distance
+    distance = calculate_distance(coord, coord)
+    
+    # Assert the distance is zero
+    assert distance == 0
+
+
+def test_calculate_distance_extreme_coordinates():
+    """
+    Test calculate_distance with extreme valid coordinates.
+    """
+    # North Pole and South Pole
+    coord1 = (90.0, 0.0)    # North Pole
+    coord2 = (-90.0, 0.0)   # South Pole
+    
+    # Calculate the distance
+    distance = calculate_distance(coord1, coord2)
+    
+    # Assert the result is around 20,000 km (Earth's approximate diameter)
+    assert 20000 <= distance <= 20100
+
+
+def test_calculate_distance_invalid_coordinates():
+    """
+    Test calculate_distance with invalid coordinates.
+    """
+    # Invalid coordinates
+    coord1 = (91.0, 0.0)    # Latitude out of range
+    coord2 = (37.5665, 126.9780)
+    
+    # Expect a ValueError from geopy
+    with pytest.raises(ValueError):
+        calculate_distance(coord1, coord2)
