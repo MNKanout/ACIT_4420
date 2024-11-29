@@ -1,48 +1,14 @@
 import json
 import numpy as np
 import networkx as nx
-from geopy.distance import geodesic
 from python_tsp.exact import solve_tsp_dynamic_programming
 from interface import get_optimization_criteria  # Import the function from interface.py
+from graph_utils import build_graph, plot_graph  # Import functions from graph_utils.py
 
 def parse_json(filename):
     with open(filename, 'r') as f:
         data = json.load(f)
     return data
-
-def build_graph(data, criteria):
-    G = nx.Graph()
-    for route in data:
-        pos1 = route['position_1']
-        pos2 = route['position_2']
-        coord1 = tuple(route['position1_coordinates'])
-        coord2 = tuple(route['position2_coordinates'])
-        travel_speed = route['travel_speed']
-        cost_per_km = route['cost_per_km']
-        travel_mode = route['travel_mode']
-
-        # Calculate distance using geopy
-        distance = geodesic(coord1, coord2).kilometers
-        # Calculate time and cost
-        time = distance / travel_speed
-        cost = distance * cost_per_km
-
-        # Determine the edge weight based on criteria
-        if criteria == 'time':
-            weight = time
-        elif criteria == 'cost':
-            weight = cost
-        elif criteria == 'transfers':
-            # For transfers, assign a weight of 1 per edge
-            weight = 1
-        else:
-            weight = time  # default to time
-
-        # Add nodes and edge
-        G.add_node(pos1, coordinates=coord1)
-        G.add_node(pos2, coordinates=coord2)
-        G.add_edge(pos1, pos2, weight=weight, distance=distance, time=time, cost=cost, travel_mode=travel_mode)
-    return G
 
 def compute_all_pairs_shortest_paths(G):
     # Use Floyd-Warshall algorithm to compute shortest paths
@@ -84,6 +50,9 @@ def main():
         print(f"Total number of transfers: {total_weight:.0f}")
     else:
         print(f"Total weight: {total_weight:.2f}")
+
+    # Plot the graph with the optimal path and criteria
+    plot_graph(G, optimal_path, criteria)
 
 if __name__ == "__main__":
     main()
