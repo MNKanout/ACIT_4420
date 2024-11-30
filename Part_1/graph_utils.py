@@ -1,9 +1,12 @@
+# graph_utils.py
 import networkx as nx
 import matplotlib.pyplot as plt
 from geopy.distance import geodesic
+from logger_config import logger  # Import the logger
 
 def build_graph(data, criteria):
     G = nx.Graph()
+    logger.info("Building the graph.")
     for route in data:
         pos1 = route['position_1']
         pos2 = route['position_2']
@@ -35,6 +38,9 @@ def build_graph(data, criteria):
         G.add_node(pos2, coordinates=coord2)
         G.add_edge(pos1, pos2, weight=weight, distance=distance, time=time,
                    cost=cost, travel_mode=travel_mode)
+        logger.debug(f"Added edge from {pos1} to {pos2} with weight {weight:.4f}")
+
+    logger.info("Graph construction completed.")
     return G
 
 def plot_graph(G, optimal_path, criteria):
@@ -74,4 +80,5 @@ def plot_graph(G, optimal_path, criteria):
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.axis('equal')
+    logger.info("Displaying the plot.")
     plt.show()

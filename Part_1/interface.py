@@ -1,3 +1,6 @@
+# interface.py
+from logger_config import logger  # Import the logger
+
 def get_optimization_criteria():
     print("Select optimization criteria:")
     print("1. Shortest travel time")
@@ -15,4 +18,5 @@ def get_optimization_criteria():
         print("Invalid choice. Defaulting to shortest travel time.")
         criteria = 'time'
 
+    logger.info(f"User selected optimization criteria: {criteria}")
     return criteria
