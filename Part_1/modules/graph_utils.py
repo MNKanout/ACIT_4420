@@ -2,9 +2,21 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from geopy.distance import geodesic
-from logger_config import logger  # Import the logger
+from .logger_config import logger
+import numpy as np
+
 
 def build_graph(data, criteria):
+    """
+    Builds the transport network graph based on the provided data and optimization criteria.
+    
+    Parameters:
+        data (list): List of route information.
+        criteria (str): Optimization criteria ('time', 'cost', 'transfers').
+        
+    Returns:
+        networkx.Graph: The constructed transport network graph.
+    """
     G = nx.Graph()
     logger.info("Building the graph.")
     for route in data:
@@ -43,7 +55,16 @@ def build_graph(data, criteria):
     logger.info("Graph construction completed.")
     return G
 
+
 def plot_graph(G, optimal_path, criteria):
+    """
+    Plots the transport network graph and highlights the optimal path.
+    
+    Parameters:
+        G (networkx.Graph): The transport network graph.
+        optimal_path (list): The sequence of locations in the optimized route.
+        criteria (str): The optimization criteria used ('time', 'cost', 'transfers').
+    """
     # Prepare positions for plotting
     nodes_positions = {}
     for node in G.nodes():
@@ -68,13 +89,13 @@ def plot_graph(G, optimal_path, criteria):
 
     # Set the title based on the criteria
     if criteria == 'time':
-        title = 'Tarjan\'s Optimal Path (Shortest Travel Time)'
+        title = 'Optimal Path (Shortest Travel Time)'
     elif criteria == 'cost':
-        title = 'Tarjan\'s Optimal Path (Least Cost)'
+        title = 'Optimal Path (Least Cost)'
     elif criteria == 'transfers':
-        title = 'Tarjan\'s Optimal Path (Minimal Number of Transfers)'
+        title = 'Optimal Path (Minimal Number of Transfers)'
     else:
-        title = 'Tarjan\'s Optimal Path to Visit All Relatives'
+        title = 'Optimal Path to Visit All Relatives'
 
     plt.title(title)
     plt.xlabel('Longitude')
@@ -82,3 +103,40 @@ def plot_graph(G, optimal_path, criteria):
     plt.axis('equal')
     logger.info("Displaying the plot.")
     plt.show()
+
+
+def compute_all_pairs_shortest_paths(G):
+    """
+    Computes the shortest paths between all pairs of nodes in the graph.
+    
+    Parameters:
+        G (networkx.Graph): The transport network graph.
+        
+    Returns:
+        dict: A dictionary of shortest path lengths between nodes.
+    """
+    all_pairs = dict(nx.floyd_warshall(G, weight='weight'))
+    logger.info("Computed all-pairs shortest paths.")
+    return all_pairs
+
+
+def create_distance_matrix(G, all_pairs):
+    """
+    Creates a distance matrix from the all-pairs shortest paths.
+    
+    Parameters:
+        G (networkx.Graph): The transport network graph.
+        all_pairs (dict): Shortest paths between all node pairs.
+        
+    Returns:
+        tuple: Distance matrix (numpy.ndarray), index mapping (dict), list of nodes.
+    """
+    nodes = list(G.nodes())
+    n = len(nodes)
+    index = {nodes[i]: i for i in range(n)}
+    distance_matrix = np.zeros((n, n))
+    for i, u in enumerate(nodes):
+        for j, v in enumerate(nodes):
+            distance_matrix[i][j] = all_pairs[u][v]
+    logger.info("Constructed distance matrix for TSP solver.")
+    return distance_matrix, index, nodes
