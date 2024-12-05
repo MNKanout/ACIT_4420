@@ -29,7 +29,7 @@ def main():
     logger.info(f"Selected optimization criteria: {criteria}")
 
     # Parse the JSON data
-    data = parse_json('routes.json')
+    data = parse_json('data/routes.json')
 
     # Build the graph
     G = build_graph(data, criteria)
